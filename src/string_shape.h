@@ -373,10 +373,10 @@ public:
                     int align, double hjust, double vjust, double width,
                     double tracking, double ind, double hang, double before,
                     double after, bool spacer, int direction,
-                    std::vector<int>& soft_wrap, std::vector<int>& hard_wrap);
+                    std::vector<int>& wrap);
   bool add_string(const char* string, FontSettings& font_info,
                   double size, double tracking, bool spacer,
-                  std::vector<int>& soft_wrap, std::vector<int>& hard_wrap);
+                  std::vector<int>& wrap);
   bool add_spacer(FontSettings& font_info, double height, double width, uint32_t filler = SPACER_CHAR);
   bool finish_string();
 

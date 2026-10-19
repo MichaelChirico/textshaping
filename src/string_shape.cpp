@@ -78,8 +78,7 @@ bool HarfBuzzShaper::shape_string(const char* string, FontSettings& font_info,
                                   int align, double hjust, double vjust, double width,
                                   double tracking, double ind, double hang, double before,
                                   double after, bool spacer, int direction,
-                                  std::vector<int>& soft_wrap,
-                                  std::vector<int>& hard_wrap) {
+                                  std::vector<int>& wrap) {
   reset();
 
   // Set global settings
@@ -97,13 +96,12 @@ bool HarfBuzzShaper::shape_string(const char* string, FontSettings& font_info,
 
   dir = direction;
 
-  return add_string(string, font_info, size, tracking, spacer, soft_wrap, hard_wrap);
+  return add_string(string, font_info, size, tracking, spacer, wrap);
 }
 
 bool HarfBuzzShaper::add_string(const char* string, FontSettings& font_info,
                                 double size, double tracking, bool spacer,
-                                std::vector<int>& soft_wrap,
-                                std::vector<int>& hard_wrap) {
+                                std::vector<int>& wrap) {
   if (spacer) {
     return add_spacer(font_info, size, tracking);
   }
@@ -126,10 +124,7 @@ bool HarfBuzzShaper::add_string(const char* string, FontSettings& font_info,
   unsigned int index = shape_infos.size();
 
   // Add precalculated soft and hard break points to the sets
-  for (auto iter = soft_wrap.begin(); iter != soft_wrap.end(); ++iter) {
-    soft_break.insert(run_start + (*iter) - 1);
-  }
-  for (auto iter = hard_wrap.begin(); iter != hard_wrap.end(); ++iter) {
+  for (auto iter = wrap.begin(); iter != wrap.end(); ++iter) {
     int break_pos = run_start + (*iter) - 1;
     if (glyph_is_linebreak(full_string[break_pos])) {
       hard_break.insert(break_pos);
