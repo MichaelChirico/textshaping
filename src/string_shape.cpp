@@ -208,7 +208,7 @@ bool HarfBuzzShaper::finish_string() {
   int32_t previous_line_descend = 0;
   int32_t line_ascend = 0;
   bool hard_break = false;
-  uint32_t break_char;
+  int32_t break_height = 0;
   int32_t line_left_extra = 0;
   std::list<EmbedInfo> line;
 
@@ -221,7 +221,7 @@ bool HarfBuzzShaper::finish_string() {
   // Lay out one line at a time
   while (!final_embeddings.empty()) {
     // Retrieve the next line from the embedding list
-    line = get_next_line_at_width(max_width - cur_line_indent, final_embeddings, hard_break, break_char);
+    line = get_next_line_at_width(max_width - cur_line_indent, final_embeddings, hard_break, break_height);
     bool first_char = true;
 
     // If ltr indent goes to the left
@@ -328,7 +328,7 @@ bool HarfBuzzShaper::finish_string() {
 
   if (hard_break) {
     // Last line ended with a line break. We move pen_y down based on last glyph size
-    int32_t line_height = 0;
+    int32_t line_height = break_height * cur_lineheight;
     if (!line.back().ascenders.empty()) {
       size_t last_glyph = line.back().embedding_level % 2 == 0 ? line.back().glyph_id.size() - 1 : 0;
       line_height = (line.back().ascenders[last_glyph] - line.back().descenders[last_glyph]) * cur_lineheight;
@@ -1196,7 +1196,7 @@ void HarfBuzzShaper::rearrange_embeddings(std::list<EmbedInfo>& line) {
   }
 }
 
-std::list<EmbedInfo> HarfBuzzShaper::get_next_line_at_width(int32_t width, std::list<EmbedInfo>& all_embeddings, bool& hard_break, uint32_t& break_char) {
+std::list<EmbedInfo> HarfBuzzShaper::get_next_line_at_width(int32_t width, std::list<EmbedInfo>& all_embeddings, bool& hard_break, int32_t& break_height) {
   std::list<EmbedInfo> line;
 
   if (width < 0) { // No limit on width
@@ -1214,7 +1214,7 @@ std::list<EmbedInfo> HarfBuzzShaper::get_next_line_at_width(int32_t width, std::
     } else {
       line.splice(line.begin(), all_embeddings, all_embeddings.begin(), std::next(has_break));
       hard_break = true;
-      break_char = has_break->pop();
+      break_height = has_break->pop();
     }
   } else {
     auto iter = all_embeddings.begin();
@@ -1276,7 +1276,7 @@ std::list<EmbedInfo> HarfBuzzShaper::get_next_line_at_width(int32_t width, std::
     } else {
       // It got stopped by a hard line break
       hard_break = true;
-      break_char = std::prev(iter)->pop();
+      break_height = std::prev(iter)->pop();
       line.splice(line.begin(), all_embeddings, all_embeddings.begin(), iter);
     }
   }
