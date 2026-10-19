@@ -130,7 +130,12 @@ bool HarfBuzzShaper::add_string(const char* string, FontSettings& font_info,
     soft_break.insert(run_start + (*iter) - 1);
   }
   for (auto iter = hard_wrap.begin(); iter != hard_wrap.end(); ++iter) {
-    hard_break.insert(run_start + (*iter) - 1);
+    int break_pos = run_start + (*iter) - 1;
+    if (glyph_is_linebreak(full_string[break_pos])) {
+      hard_break.insert(break_pos);
+    } else {
+      soft_break.insert(break_pos);
+    }
   }
 
   // Add run info to list
@@ -328,8 +333,11 @@ bool HarfBuzzShaper::finish_string() {
 
   if (hard_break) {
     // Last line ended with a line break. We move pen_y down based on last glyph size
-    size_t last_glyph = line.back().embedding_level % 2 == 0 ? line.back().glyph_id.size() : 0;
-    int32_t line_height = (line.back().ascenders[last_glyph] - line.back().descenders[last_glyph]) * cur_lineheight;
+    int32_t line_height = 0;
+    if (!line.back().ascenders.empty()) {
+      size_t last_glyph = line.back().embedding_level % 2 == 0 ? line.back().glyph_id.size() - 1 : 0;
+      line_height = (line.back().ascenders[last_glyph] - line.back().descenders[last_glyph]) * cur_lineheight;
+    }
     pen_y -= line_height;
     bottom_bearing += line_height;
     pen_x = indent;
