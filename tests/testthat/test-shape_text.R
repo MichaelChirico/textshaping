@@ -21,8 +21,8 @@ test_that("shape_text handles trailing and standalone hard line breaks", {
 
   # Empty final line (bare newline, double trailing newline, or mixed-BiDi before \n)
   bare_nl <- shape_text("\n")
-  expect_equal(nrow(bare_nl$shape), 0L)
-  expect_equal(nrow(bare_nl$metrics), 1L)
+  expect_shape(bare_nl$shape, nrow = 0L)
+  expect_shape(bare_nl$metrics, nrow = 1L)
   expect_gt(bare_nl$metrics$height, 0)
 
   double_trailing <- shape_text("line 1\n\n")
@@ -61,23 +61,23 @@ test_that("shape_text handles multi-run strings and edge-case inputs", {
   runs <- shape_text(
     c("hello ", "world\n", "next"),
     id = c(1L, 1L, 1L),
-    max_width = 0.8
+    max_width = 0.6
   )
   expect_equal(runs$shape$glyph, c(1:11, 13:16))
-  expect_equal(runs$shape$string_id, c(rep(1L, 6), rep(2L, 5), rep(3L, 4)))
+  expect_equal(runs$shape$string_id, rep(1:3, 6:4))
   expect_length(unique(runs$shape$y_offset), 3L)
 
   empty <- shape_text("")
-  expect_equal(nrow(empty$shape), 0L)
-  expect_equal(nrow(empty$metrics), 1L)
+  expect_shape(empty$shape, nrow = 0L)
+  expect_shape(empty$metrics, nrow = 1L)
 
   na_res <- shape_text(NA_character_)
-  expect_equal(nrow(na_res$shape), 1L)
+  expect_shape(na_res$shape, nrow = 1L)
   expect_identical(na_res$shape$index, NA_integer_)
 
   zero_res <- shape_text(character(0))
-  expect_equal(nrow(zero_res$shape), 0L)
-  expect_equal(nrow(zero_res$metrics), 0L)
+  expect_shape(zero_res$shape, nrow = 0L)
+  expect_shape(zero_res$metrics, nrow = 0L)
 })
 
 test_that("shape_text handles RTL text with line breaks and wrapping", {
@@ -91,7 +91,7 @@ test_that("shape_text handles RTL text with line breaks and wrapping", {
   expect_gt(rtl_nl$metrics$height, rtl_single$metrics$height)
 
   rtl_trail_nl <- shape_text("\u05e9\u05dc\u05d5\u05dd \u05e2\u05d5\u05dc\u05dd\n", direction = "rtl")
-  expect_equal(nrow(rtl_trail_nl$shape), 9L)
+  expect_shape(rtl_trail_nl$shape, nrow = 9L)
   expect_gt(rtl_trail_nl$metrics$height, rtl_single$metrics$height)
 
   rtl_wrap <- shape_text(

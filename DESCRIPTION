@@ -29,7 +29,7 @@ Suggests:
     grid,
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.3.0)
 LinkingTo:
     cpp11 (>= 0.2.1),
     systemfonts (>= 1.0.0)
